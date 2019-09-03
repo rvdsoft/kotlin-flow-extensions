@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.take
 
 class AbortCollectException : CancellationException()
 
+@ExperimentalCoroutinesApi
 fun <T> Flow<T>.repeat(): Flow<T> = flow {
     try {
         collect {
@@ -25,6 +26,7 @@ fun <T> Flow<T>.repeat(): Flow<T> = flow {
     }
 }
 
+@ExperimentalCoroutinesApi
 fun <T> Flow<T>.zipLatest(): Flow<T> {
     return take(1).repeat()
 }
