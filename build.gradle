@@ -1,9 +1,10 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id 'maven'
 }
 
-group 'rvdsoft'
-version '0.01'
+group = 'com.github.rvdsoft'
+version '0.011'
 
 repositories {
     mavenCentral()
