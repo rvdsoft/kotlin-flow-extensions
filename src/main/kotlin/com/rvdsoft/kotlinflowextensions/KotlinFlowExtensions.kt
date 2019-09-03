@@ -2,9 +2,32 @@
 
 package com.rvdsoft.kotlinflowextensions
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.take
+
+
+class AbortCollectException : CancellationException()
+
+fun <T> Flow<T>.repeat(): Flow<T> = flow {
+    try {
+        collect {
+            emit(it)
+            throw AbortCollectException()
+        }
+    } catch (e: AbortCollectException) {
+        repeat().collect {
+            emit(it)
+        }
+    }
+}
+
+fun <T> Flow<T>.zipLatest(): Flow<T> {
+    return take(1).repeat()
+}
 
 @ExperimentalCoroutinesApi
 inline fun <reified T, R> Flow<T>.withLatestFrom(
@@ -13,7 +36,7 @@ inline fun <reified T, R> Flow<T>.withLatestFrom(
 ): Flow<R> {
     val t = this
     return flow {
-        withLatestFromInternal(t, flows, { arrayOfNulls(flows.size) }, { emit(transform(it)) })
+        withLatestFromInternal(t, flows) { emit(transform(it)) }
     }
 }
 
