@@ -12,12 +12,14 @@ import kotlinx.coroutines.flow.take
 
 class AbortCollectException : CancellationException()
 
+private val STOP = AbortCollectException()
+
 @ExperimentalCoroutinesApi
 fun <T> Flow<T>.repeat(): Flow<T> = flow {
     try {
         collect {
             emit(it)
-            throw AbortCollectException()
+            throw STOP
         }
     } catch (e: AbortCollectException) {
         repeat().collect {
