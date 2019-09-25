@@ -21,10 +21,12 @@ suspend fun <T, R> FlowCollector<R>.withLatestFromInternal(
         val size = flows.size
         val latestValues = MutableList(size) { AtomicReference<T?>() }
         val outerScope = this
-        for (i in 0..size) {
+        for (i in 0 until size) {
             launch {
                 try {
-                    flows[i].collect { latestValues.get(i).set(it) }
+                    flows[i].collect {
+                        latestValues[i].set(it)
+                    }
                 } catch (e: CancellationException) {
                     outerScope.cancel(e) // cancel outer scope on cancellation exception, too
                 }
