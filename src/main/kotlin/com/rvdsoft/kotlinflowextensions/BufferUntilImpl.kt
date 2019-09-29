@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 @ExperimentalCoroutinesApi
 /**
- * buffer until [predicate] returns **true**. The elment that returns true will go first.
+ * buffer until [predicate] returns **true**.
  */
 suspend fun <T> Flow<T>.bufferUntil(
     predicate: suspend (T) -> Boolean
@@ -20,15 +20,15 @@ suspend fun <T> Flow<T>.bufferUntil(
 
 @ExperimentalCoroutinesApi
 /**
- * buffer until [predicate] returns **true**
+ * buffer until [predicate] returns **true**. The element that returns true will go first.
  */
-suspend fun <T> Flow<T>.bufferUntilKeepOrder(
+suspend fun <T> Flow<T>.bufferUntilReorder(
     predicate: suspend (T) -> Boolean
 ) = bufferUntil(true, predicate)
 
 
 private suspend fun <T> Flow<T>.bufferUntil(
-    keepOrder: Boolean,
+    reorder: Boolean,
     predicate: suspend (T) -> Boolean
 ) = coroutineScope {
     val buffer = ArrayList<T>()
@@ -41,7 +41,7 @@ private suspend fun <T> Flow<T>.bufferUntil(
                     emit(it)
                 }
                 predicate(it) -> {
-                    if (keepOrder) {
+                    if (!reorder) {
                         predicateTrue.set(true)
                         buffer += it
                     } else {
