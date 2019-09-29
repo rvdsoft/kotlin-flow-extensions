@@ -1,7 +1,6 @@
 package com.rvdsoft.kotlinflowextensions
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -13,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * buffer until [predicate] returns **true**.
  */
-suspend fun <T> Flow<T>.bufferUntil(
+fun <T> Flow<T>.bufferUntil(
     predicate: suspend (T) -> Boolean
 ) = bufferUntil(false, predicate)
 
@@ -22,19 +21,18 @@ suspend fun <T> Flow<T>.bufferUntil(
 /**
  * buffer until [predicate] returns **true**. The element that returns true will go first.
  */
-suspend fun <T> Flow<T>.bufferUntilReorder(
+fun <T> Flow<T>.bufferUntilReorder(
     predicate: suspend (T) -> Boolean
 ) = bufferUntil(true, predicate)
 
 
-private suspend fun <T> Flow<T>.bufferUntil(
+private fun <T> Flow<T>.bufferUntil(
     reorder: Boolean,
     predicate: suspend (T) -> Boolean
-) = coroutineScope {
+) = flow {
     val buffer = ArrayList<T>()
     val predicateTrue = AtomicBoolean()
     val mutex = Mutex()
-    flow {
         collect {
             when {
                 predicateTrue.get() -> {
@@ -60,5 +58,4 @@ private suspend fun <T> Flow<T>.bufferUntil(
                 }
             }
         }
-    }
 }
