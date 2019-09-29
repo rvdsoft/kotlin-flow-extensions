@@ -24,7 +24,7 @@ class BufferUntilTest {
     fun bufferUntilTest() = runBlocking {
         val intents = ArrayList<Intent>()
         val job = launch(Dispatchers.IO) {
-            channel.asFlow().bufferUntil {
+            channel.asFlow().bufferUntilReorder {
                 it is Intent.InitialIntent
             }.collect {
                 intents += it
