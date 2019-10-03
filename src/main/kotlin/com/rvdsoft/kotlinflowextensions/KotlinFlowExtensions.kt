@@ -4,15 +4,13 @@ package com.rvdsoft.kotlinflowextensions
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.*
 
 
 class AbortCollectException : CancellationException()
 
 private val STOP = AbortCollectException()
+
 
 @ExperimentalCoroutinesApi
 fun <T> Flow<T>.repeat(): Flow<T> = flow {
@@ -27,6 +25,12 @@ fun <T> Flow<T>.repeat(): Flow<T> = flow {
         }
     }
 }
+
+/**
+ * @see <a href="https://github.com/Kotlin/kotlinx.coroutines/issues/1491">issue 1491 @ kotlinx coroutines</>
+ */
+@ExperimentalCoroutinesApi
+fun <T> merge(vararg flows: Flow<T>): Flow<T> = flowOf(*flows).flattenMerge(concurrency = flows.size)
 
 @ExperimentalCoroutinesApi
 fun <T> Flow<T>.zipLatest(): Flow<T> {
